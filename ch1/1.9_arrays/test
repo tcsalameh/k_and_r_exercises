@@ -1,0 +1,8 @@
+we include newlines when counting these lengths
+
+this line is not longer than 80 chars
+this one is, it's a pretty long line, definitely longer than 80 chars for sure, yes definitely longer than that.
+this one is exactly 80 chars, no more and no less, yes no more and no less yep.
+this one is exactly 81 chars, only one little char longer than the previous line
+
+we expect to see only lines 4 and 6 in the output.
