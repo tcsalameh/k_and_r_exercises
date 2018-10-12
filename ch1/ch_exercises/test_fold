@@ -1,0 +1,10 @@
+This line is going to be longer than 80 chars and should be folded over at the word "the".
+This next line is shorter, it shouldn't be folded at all.
+Here's another long line. This one is going to be so long it should be folded into more than two lines. Yeah, more than two lines. It's quite long, more than the allowed length for tweets of 240 characters, very excessive and long. Ok that's about enough, this should be broken into at least 3-4 separate lines.
+After this there's a line with no whitespace over the limit. It should get broken into separate lines too.
+
+nospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospacesnospaces
+
+Now a line with all whitespace:
+                                                                                                
+ok done.
