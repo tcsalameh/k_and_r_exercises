@@ -1,0 +1,8 @@
+++n increments a value before it is used in an expression.
+n++ increments the value after it is used in an expression.
+
+suppose n=5.
+x = n++ will set x to 5, then increment n to 6.
+x = ++n will increment n to 6, then set x to 6.
+
+only applicable to variables, not expressions (e.g. (i+j)++ is illegal).
