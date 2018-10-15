@@ -1,0 +1,57 @@
+bitwise operators
+
+& - bitwise AND - often used to mask bits
+| - bitwise inclusive OR - often used to turn bits on
+^ - bitwise exclusive OR
+<< - left shift - effect of mult. by 2 * n shifts
+>> - right shift
+~ - one's complement - every 1 bit becomes a 0 and vice versa
+
+getbits(x, p, n)
+- returns n bit field of x beginning at pos. p, right adjusted
+position 0 is at the right end, n and p are positive
+
+876543210
+110101101
+
+output shoud be: 011, positions 4,3,2
+
+unsigned getbits(unsigned x, int p, int n)
+{
+  return (x >> p+1-n)) & ~(~ 0 << n);
+}
+
+suppose we pass x=110101101, p=4, n=3
+(110101101 >> 4+1-3) & ~(~ 0 << 3)
+(110101101 >> 2) & ~(~ 0 << 3)
+(001101011) & ~(1000)
+1101011 & 0000111
+011
+
+xor
+0 0 -> 0
+0 1 -> 1
+1 0 -> 1
+1 1 -> 0
+
+
+0 0 -> 0
+0 1 -> 1
+1 0 -> 0
+1 1 -> 1
+
+x xor x | y
+
+p=6, n=5
+p - n + 1
+problem is we have for y:
+    xxxxx
+00001101000
+
+and for x:
+    xxxxx
+10110110010
+
+and we want:
+    xxxxx
+10111101000
