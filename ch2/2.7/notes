@@ -1,0 +1,26 @@
+Type conversions
+
+- in general, types in expressions are converted as long as it won't lead to information loss (narrower -> wider)
+- if it will lead to info loss, sometimes you'll only get a warning (e.g. float to int)
+
+- conditional exprs eval to 0 if false, 1 if true
+- conditional tests only check if non-zero
+
+with signed operands, conversion hierarchy is:
+
+-> if any long double, convert both to long double
+  -> "" double "" double
+    -> "" float "" float
+      -> if any int and char/short, convert char/short to int
+        -> if any long, convert both to long
+
+This gets more complicated with unsigned operands, and becomes machine dependent.
+e.g. if int=16 bits and long=32 bits, then
+  - -1L < 1U (1U is promoted to a signed long)
+  - 1L < 1UL (-1L is promoted to unsigned long)
+
+value of right side is converted to type of left.
+type conversions also occur when you pass an arg to a function.
+
+cast operator: (type-name) expression
+equivalent to: assigning expression to a variable of type-name type.
