@@ -1,0 +1,8 @@
+conditional expressions
+
+essentially ternaries
+
+expr1 ? expr2 : expr3
+
+e.g.
+z = (a > b) ? a : b;
