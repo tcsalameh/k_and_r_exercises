@@ -1,0 +1,7 @@
+switch statement
+
+switch (expression) {
+  case const-expr: statements
+  case const-expr: statements
+  default: statements
+}
