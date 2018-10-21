@@ -10,7 +10,7 @@
  * we would not get the same value since the positive complement is one less. */
 #include <stdio.h>
 #include <limits.h>
-#include <string.h>
+#include "reverse.h"
 
 void itoa(int n, char s[]);
 void itoa_prime(int n, char s[]);
@@ -72,14 +72,4 @@ void itoa_prime(int n, char s[])
 
   s[i] = '\0';
   reverse(s);
-}
-
-void reverse(char s[]) {
-  int c, i, j;
-
-  for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
-    c = s[i];
-    s[i] = s[j];
-    s[j] = c;
-  }
 }
