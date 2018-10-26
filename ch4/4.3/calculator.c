@@ -8,6 +8,7 @@
 #define NUMBER   '0'  /* signal that a number was found */
 #define VARIABLE '1'  /* signal that a variable was found */
 #define MAXVAL   100  /* max size of val stack */
+#define MAXLINE  1000 /* max line length */
 #define BUFSIZE  100  /* character input buffer */
 #define NVARS    26   /* number of variables */
 
@@ -15,13 +16,11 @@ int sp = 0;                   /* next free stack position */
 double val[MAXVAL];           /* value stack */
 double vars[NVARS];           /* variable values */
 double varsetflags[NVARS];    /* variable set? */
-char buf[BUFSIZE];            /* buffer for ungetch */
-int bufp = 0;                 /* pointer to next free pos in buf */
 char lastprintvar = 'z';      /* var holding value of last print */
+char line[MAXLINE];
+char lnptr;
+int len;
 
-int getch(void);
-void ungetch(int);
-void ungets(char []);
 int getop(char []);
 void push(double);
 double pop(void);
@@ -29,6 +28,7 @@ void setvar(char, double);
 double getvar(char);
 void clearvars(void);
 int isset(char);
+int getLine(char [], int);
 
 /* reverse polish notation */
 int main()
@@ -38,94 +38,97 @@ int main()
   double op1;
   char s[MAXOP];
 
-  while ((type = getop(s)) != EOF) {
-    switch (type) {
-      case NUMBER:
-        push(atof(s));
-        break;
-      case VARIABLE:
-        if (isset(s[0])) {
-          push(getvar(s[0]));
-        }
-        else {
-          push(s[0]);
-        }
-        break;
-      case '+':
-        push(pop() + pop());
-        break;
-      case '*':
-        push(pop() * pop());
-        break;
-      case '-':
-        op2 = pop();
-        push(pop() - op2);
-        break;
-      case '/':
-        op2 = pop();
-        if (op2 != 0.0)
-          push(pop() / op2);
-        else
-          printf("error: zero divisor\n");
-        break;
-      case '%':
-        op2 = pop();
-        if (op2 != 0.0)
-          push((int) pop() % (int) op2);
-        else
-          printf("error: zero divisor\n");
-        break;
-      case '=': /* variable assignment */
-        op2 = pop();
-        if ((op1 = pop()) == lastprintvar)
-          printf("error: %c is a reserved variable\n", lastprintvar);
-        else
-          setvar(op1, op2);
-        break;
-      case '~': /* sin */
-        push(sin(pop()));
-        break;
-      case '^': /* pow */
-        op2 = pop();
-        push(pow(pop(), op2));
-        break;
-      case '>': /* exp */
-        push(exp(pop()));
-        break;
-      case '<': /* log */
-        push(log(pop()));
-        break;
-      case '?': /* sqrt */
-        push(sqrt(pop()));
-        break;
-      case '@': /* print top stack element */
-        op1 = pop();
-        printf("top stack element: %.8g\n", op1);
-        push(op1);
-        break;
-      case ':': /* duplicate the top stack element */
-        op1 = pop();
-        push(op1);
-        push(op1);
-        break;
-      case '&': /* swap top two stack elems */
-        op2 = pop();
-        op1 = pop();
-        push(op2);
-        push(op1);
-        break;
-      case '_': /* clear the stack */
-        sp = 0;
-        val[sp] = 0.0;
-        break;
-      case '\n':
-        clearvars();
-        setvar(lastprintvar, pop());
-        printf("\t%.8g\n", getvar(lastprintvar));
-        break;
-      default:
-        printf("error: unknown command %s\n", s);
-        break;
+  while ((len = getLine(line, MAXLINE)) != 0) {
+    for (lnptr = 0; lnptr < len;) {
+      type = getop(s);
+      switch (type) {
+        case NUMBER:
+          push(atof(s));
+          break;
+        case VARIABLE:
+          if (isset(s[0])) {
+            push(getvar(s[0]));
+          }
+          else {
+            push(s[0]);
+          }
+          break;
+        case '+':
+          push(pop() + pop());
+          break;
+        case '*':
+          push(pop() * pop());
+          break;
+        case '-':
+          op2 = pop();
+          push(pop() - op2);
+          break;
+        case '/':
+          op2 = pop();
+          if (op2 != 0.0)
+            push(pop() / op2);
+          else
+            printf("error: zero divisor\n");
+          break;
+        case '%':
+          op2 = pop();
+          if (op2 != 0.0)
+            push((int) pop() % (int) op2);
+          else
+            printf("error: zero divisor\n");
+          break;
+        case '=': /* variable assignment */
+          op2 = pop();
+          if ((op1 = pop()) == lastprintvar)
+            printf("error: %c is a reserved variable\n", lastprintvar);
+          else
+            setvar(op1, op2);
+          break;
+        case '~': /* sin */
+          push(sin(pop()));
+          break;
+        case '^': /* pow */
+          op2 = pop();
+          push(pow(pop(), op2));
+          break;
+        case '>': /* exp */
+          push(exp(pop()));
+          break;
+        case '<': /* log */
+          push(log(pop()));
+          break;
+        case '?': /* sqrt */
+          push(sqrt(pop()));
+          break;
+        case '@': /* print top stack element */
+          op1 = pop();
+          printf("top stack element: %.8g\n", op1);
+          push(op1);
+          break;
+        case ':': /* duplicate the top stack element */
+          op1 = pop();
+          push(op1);
+          push(op1);
+          break;
+        case '&': /* swap top two stack elems */
+          op2 = pop();
+          op1 = pop();
+          push(op2);
+          push(op1);
+          break;
+        case '_': /* clear the stack */
+          sp = 0;
+          val[sp] = 0.0;
+          break;
+        case '\n':
+          clearvars();
+          setvar(lastprintvar, pop());
+          printf("\t%.8g\n", getvar(lastprintvar));
+          break;
+        default:
+          printf("error: unknown command %s\n", s);
+          break;
+      }
     }
   }
   return 0;
@@ -156,7 +159,7 @@ int getop(char s[])
 {
   int i, c;
 
-  while ((s[0] = c = getch()) == ' ' || c == '\t')
+  while ((s[0] = c = line[lnptr++]) == ' ' || c == '\t')
     ;
   s[1] = '\0';
   if (c >= 'a' && c <= 'z') {
@@ -167,56 +170,41 @@ int getop(char s[])
     return c;
 
   if (c == '-') {
-    if (isdigit(c = getch())) {
-      ungetch(c);
+    if (isdigit(c = line[lnptr++])) {
+      lnptr--;
       c = '-';
     } else {
-      ungetch(c);
+      lnptr--;
       return '-';
     }
   }
 
   i = 0;
   if (isdigit(c) || c == '-')
-    while (isdigit(s[++i] = c = getch()))
+    while (isdigit(s[++i] = c = line[lnptr++]))
       ;
   if (c == '.')
-    while (isdigit(s[++i] = c = getch()))
+    while (isdigit(s[++i] = c = line[lnptr++]))
       ;
   s[i] = '\0';
   if (c != EOF)
-    ungetch(c);
+    lnptr--;
   return NUMBER;
 }
 
-// If we encounter EOF here,
-// I think it's up to the caller what to do
-/* get a (possibley pushed back) character */
-int getch(void)
+int getLine(char line[], int limit)
 {
-  return (bufp > 0) ? buf[--bufp] : getchar();
-}
+  int c, i;
 
-// If we push back an EOF character
-// we should clear the buffer because the previous
-// pushed back chars are beyond EOF
-/* push a character back on input */
-void ungetch(int c)
-{
-  if (c == EOF) {
-    bufp = 0;
-    buf[bufp++] = c;
-  } else if (bufp >= BUFSIZE) {
-    printf("ungetch: too many characters\n");
-  } else {
-    buf[bufp++] = c;
+  for (i=0; (i < limit-1) && (c=getchar()) != EOF && c != '\n'; ++i)
+    line[i] = c;
+
+  if (c == '\n') {
+    line[i] = c;
+    ++i;
   }
-}
-
-void ungets(char s[])
-{
-  for (int i = strlen(s)-1; i >= 0; i--)
-    ungetch(s[i]);
+  line[i] = '\0';
+  return i;
 }
 
 void setvar(char var, double val)
