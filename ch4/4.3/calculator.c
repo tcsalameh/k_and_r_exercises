@@ -4,20 +4,19 @@
 #include <math.h>
 #include <string.h>
 
-#define MAXOP     100  /* max size of operand or operator */
-#define NUMBER    '0'  /* signal that a number was found */
-#define VARIABLE  '1'  /* signal that a variable was found */
-#define MAXVAL    100  /* max size of val stack */
-#define NVARS     26   /* number of variables */
-#define BUFFULL   1    /* indicates if char buffer is full */
-#define BUFEMPTY  0    /* indicates if char buffer is empty */
+#define MAXOP    100  /* max size of operand or operator */
+#define NUMBER   '0'  /* signal that a number was found */
+#define VARIABLE '1'  /* signal that a variable was found */
+#define MAXVAL   100  /* max size of val stack */
+#define BUFSIZE  100  /* character input buffer */
+#define NVARS    26   /* number of variables */
 
 int sp = 0;                   /* next free stack position */
 double val[MAXVAL];           /* value stack */
 double vars[NVARS];           /* variable values */
 double varsetflags[NVARS];    /* variable set? */
-char buf;                     /* buffer for ungetch */
-int bufstate = BUFEMPTY;      /* buffer state */
+char buf[BUFSIZE];            /* buffer for ungetch */
+int bufp = 0;                 /* pointer to next free pos in buf */
 char lastprintvar = 'z';      /* var holding value of last print */
 
 int getch(void);
@@ -190,24 +189,19 @@ int getop(char s[])
   return NUMBER;
 }
 
-/* get a (possibly pushed back) character */
+/* get a (possibley pushed back) character */
 int getch(void)
 {
-  if (bufstate == BUFFULL) {
-    bufstate = BUFEMPTY;
-    return buf;
-  } else {
-    return getchar();
-  }
+  return (bufp > 0) ? buf[--bufp] : getchar();
 }
 
 /* push a character back on input */
 void ungetch(int c)
 {
-  if (bufstate == BUFEMPTY)
+  if (bufp >= BUFSIZE)
     printf("ungetch: too many characters\n");
   else
-    buf = c;
+    buf[bufp++] = c;
 }
 
 void ungets(char s[])
