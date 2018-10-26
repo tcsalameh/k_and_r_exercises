@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>  /* for atof() */
+#include <math.h>
 
 #define MAXOP    100  /* max size of operand or operator */
 #define NUMBER   '0'  /* signal that a number was found */
@@ -54,6 +55,22 @@ int main()
           push((int) pop() % (int) op2);
         else
           printf("error: zero divisor\n");
+        break;
+      case '~': /* sin */
+        push(sin(pop()));
+        break;
+      case '^': /* pow */
+        op2 = pop();
+        push(pow(pop(), op2));
+        break;
+      case '>': /* exp */
+        push(exp(pop()));
+        break;
+      case '<': /* log */
+        push(log(pop()));
+        break;
+      case '?': /* sqrt */
+        push(sqrt(pop()));
         break;
       case '@': /* print top stack element */
         op1 = pop();
