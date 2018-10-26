@@ -13,3 +13,6 @@ error: stack empty
 2.7182818
 5
 5
+10
+error: z is a reserved variable
+20
