@@ -189,19 +189,28 @@ int getop(char s[])
   return NUMBER;
 }
 
+// If we encounter EOF here,
+// I think it's up to the caller what to do
 /* get a (possibley pushed back) character */
 int getch(void)
 {
   return (bufp > 0) ? buf[--bufp] : getchar();
 }
 
+// If we push back an EOF character
+// we should clear the buffer because the previous
+// pushed back chars are beyond EOF
 /* push a character back on input */
 void ungetch(int c)
 {
-  if (bufp >= BUFSIZE)
-    printf("ungetch: too many characters\n");
-  else
+  if (c == EOF) {
+    bufp = 0;
     buf[bufp++] = c;
+  } else if (bufp >= BUFSIZE) {
+    printf("ungetch: too many characters\n");
+  } else {
+    buf[bufp++] = c;
+  }
 }
 
 void ungets(char s[])
