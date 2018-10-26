@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <stdlib.h>  /* for atof() */
 #include <math.h>
+#include <string.h>
 
 #define MAXOP    100  /* max size of operand or operator */
 #define NUMBER   '0'  /* signal that a number was found */
@@ -20,6 +21,7 @@ char lastprintvar = 'z';      /* var holding value of last print */
 
 int getch(void);
 void ungetch(int);
+void ungets(char []);
 int getop(char []);
 void push(double);
 double pop(void);
@@ -200,6 +202,12 @@ void ungetch(int c)
     printf("ungetch: too many characters\n");
   else
     buf[bufp++] = c;
+}
+
+void ungets(char s[])
+{
+  for (int i = strlen(s)-1; i >= 0; i--)
+    ungetch(s[i]);
 }
 
 void setvar(char var, double val)
