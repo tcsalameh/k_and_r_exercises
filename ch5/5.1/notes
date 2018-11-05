@@ -1,0 +1,19 @@
+Pointers and Addresses
+
+operators
+- unary & gives the address of an object
+- so
+    p = &c;
+  assigns the variable p to the address of c
+
+- unary * is indirection or dereferencing operator
+- when applied to a pointer, it accesses the object the pointer points to
+- example:
+
+    int x = 1, y = 2, z[10];
+    int *ip;                /* ip is a pointer to int */
+
+    ip = &x;                /* ip points to x */
+    y = *ip;                /* y = copy of x = 1 */
+    *ip = 0;                /* now x is 0 */
+    ip = &z[10];            /* ip now points to z[0] */

@@ -1,0 +1,5 @@
+Pointers allow us to effectively pass by reference rather than by value.
+
+E.g. swapping the values of two ints via calling another function is not possible with pass by value, but is possible by passing the pointers to those variables.
+
+swap(&a, &b); as opposed to swap(a, b);
