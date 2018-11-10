@@ -1,0 +1,13 @@
+Pointers and Arrays
+
+- int *pa; declares a pointer integer
+- pa = &a[0]; will set pa to point to the zeroth element of array a
+- pa + i points to the element i spaces ahead in the array of pa
+- if pa points to a[0], then *(pa + i) will be the contents of a[i]
+
+- the value of an array variable is the starting address of the array
+- so, pa = &a[0]; and pa = a; are equivalent statements
+
+- major diff b/t array indexing and pointer arithmetic:
+  - pa is a variable, pa = a; and pa++; are ok.
+  - an array name is not a variable, so a = pa; and a++; don't make sense.

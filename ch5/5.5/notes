@@ -1,0 +1,3 @@
+- char amessage[] = "now is the time"; - this is an array, amessage is an array just big enough to hold the string plus terminating '\0'.
+- char *pmessage = "now is the time"; - pmessage is a pointer to the memory location where the beginning of the string is stored.
+

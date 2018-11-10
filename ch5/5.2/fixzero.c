@@ -1,3 +1,6 @@
+/* As written, getint treats a + or - not followed
+ * by a digit as a valid representation of zero.
+ * Fix it to push such a character back on the input. */
 #include <ctype.h>
 #include <stdio.h>
 #include "getch.h"
@@ -8,14 +11,16 @@ int getint(int *);
 
 int main()
 {
-  int i, n, array[100];
+  int n, c, array[100];
 
-  i = 0;
-  for (n = 0; n < 100 && getint(&array[n]) != EOF; n++)
-    i++;
+  for (n = 0; n < 100 && c != EOF;) {
+    c = getint(&array[n]);
+    if (c != 0)
+      n++;
+  }
 
-  for (i; i >= 0; i--)
-    printf("%d\n", array[i]);
+  for (int j = 0; j < n; j++)
+    printf("%d\n", array[j]);
 }
 
 int getint(int *pn)
@@ -31,6 +36,10 @@ int getint(int *pn)
   sign = (c == '-') ? -1 : 1;
   if (c == '+' || c == '-')
     c = getch();
+  if (!isdigit(c) && c != EOF) {
+    ungetch(c);
+    return 0;
+  }
   for (*pn = 0; isdigit(c); c = getch())
     *pn = 10 * *pn + (c - '0');
   *pn *= sign;
