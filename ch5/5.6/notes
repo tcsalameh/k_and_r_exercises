@@ -1,0 +1,9 @@
+Pointer Arrays
+
+store pointers to larger objects in an array
+example: simple version of sort
+array of pointers to string objects
+pass pointers to strcmp
+sort array of pointers, then print
+we get around having to do complicated storage mgmt with moving the lines
+themselves
