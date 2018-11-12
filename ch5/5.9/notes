@@ -1,0 +1,36 @@
+Pointers vs Multi dimensional arrays
+
+what is the difference between
+
+int a[10][20];
+and
+int *b[10];
+?
+
+a[3][4] and b[3][4] are both valid
+
+for a, 200 int-sized locations have been set aside, and rect subscript calc is used.
+for b, the definition only allocations 10 pointers and doesn't init them
+init must be done explicitly
+
+advtg of b: the rows can be different lengths
+good for storing strings of diff lengths
+
+e.g.
+char *name[] = { "Illegal month", "Jan", "Feb", "Mar" };
+
+* -> Illegal month\0
+* -> Jan\0
+* -> Feb\0
+* -> Mar\0
+
+vs.
+
+char aname[][15] = { "Illegal month", "Jan", "Feb", "Mar" };
+
+0 -> Illegal month\0
+15 -> Jan\0
+30 -> Feb\0
+45 -> Mar\0
+
+all the extra allocated space is wasted!
