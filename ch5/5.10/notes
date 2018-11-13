@@ -1,0 +1,7 @@
+Command line args
+
+main has 2 args:
+1. argc - the number of args
+2. argv - arg vector, a pointer to an array of strings
+  - argv[0] is the name of the program
+argv[argc] is a null pointer
