@@ -1,0 +1,4 @@
+Pointers to functions
+
+we can't assign a function to a variable, but we can assign pointers to functions
+
