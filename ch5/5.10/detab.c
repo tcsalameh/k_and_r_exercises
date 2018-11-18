@@ -7,7 +7,10 @@
 #define DEFAULT_TAB_SIZE 2    /* Spaces per tab */
 #define MAXLINE 1000
 
+char usage[500];
+
 int getLine(char *line, int max);
+int parseargs(int argc, char *argv[], char *tabstops);
 
 /* Replaces all tabs in the input with TAB_SIZE spaces */
 int main(int argc, char *argv[])
@@ -16,18 +19,19 @@ int main(int argc, char *argv[])
   char s[MAXLINE];
   char tabstops[MAXLINE];
   char *sp = s;
+  char *tsp = tabstops;
 
-  if (argc > 1) {
-    int ts_idx;
-    for (ts_idx = 0; --argc > 0; ts_idx++)
-      tabstops[ts_idx] = atof(*(++argv));
+  sprintf(usage, "Usage:\n"\
+  "  entab               Defaults to a tabstop every %d columns.\n"\
+  "  entab -m +n         Set tabstops every n columns starting at column m.\n"\
+  "  entab t1 t2 t3...   Set tabstops at column t1, t2, t3, etc.\n"\
+  "                      Remaining tabstops will be every %d columns.\n\n",
+  DEFAULT_TAB_SIZE,
+  DEFAULT_TAB_SIZE);
 
-    for (; ts_idx < MAXLINE; ts_idx++) {
-      tabstops[ts_idx] = tabstops[ts_idx-1] + DEFAULT_TAB_SIZE;
-    }
-  } else {
-    for (int i = 0; i < MAXLINE; i++)
-      tabstops[i] = DEFAULT_TAB_SIZE * i;
+  if (parseargs(argc, argv, tsp)) {
+      printf("%s", usage);
+      return 1;
   }
 
   while ((len = getLine(sp, MAXLINE)) != 0) {
@@ -48,6 +52,52 @@ int main(int argc, char *argv[])
     }
     printf("\n");
   }
+}
+
+int parseargs(int argc, char *argv[], char *tabstops)
+{
+  int m;
+  int n;
+  char *start = tabstops;
+
+  if (argc < 2) {
+    for (int i = 0; i < MAXLINE; i++)
+      tabstops[i] = DEFAULT_TAB_SIZE * i;
+    return 0;
+  } else {
+    ++argv;
+    for (; --argc > 0; argv++) {
+      if (*argv[0] == '-' || *argv[0] == '+') {
+        if (*argv[0] == '-') {
+          m = atof(*argv) * -1;
+          while (*argv[0] != '+' && --argc > 0)
+            argv++;
+          if (argc <= 1 && *argv[0] != '+')
+            return 1;
+          n = atof(*argv);
+        } else {
+          n = atof(*argv);
+          while (*argv[0] != '-' && --argc > 0)
+            argv++;
+          if (argc <= 1 && *argv[0] != '-')
+            return 1;
+          m = atof(*argv) * -1;
+        }
+
+        tabstops[0] = m;
+        for (int i = 1; i < MAXLINE; i++)
+          tabstops[i] = tabstops[i-1] + n;
+        return 0;
+      }
+      else {
+        *tabstops++ = atof(*argv);
+      }
+    }
+  }
+  for (; tabstops - start < MAXLINE; tabstops++) {
+    *tabstops = *(tabstops-1) + DEFAULT_TAB_SIZE;
+  }
+  return 0;
 }
 
 /* getLine: get line into s, return length */
