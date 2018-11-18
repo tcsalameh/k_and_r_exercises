@@ -1,6 +1,12 @@
 /* 5-14: Modify the sort program to handle a -r flag, which
  * indicates sorting in reverse (decreasing) order. Be sure
  * that -r works with -n. */
+/* 5-15: Add the option -f to fold upper and lower case together,
+ * so that case distinctions are not made during sorting. For
+ * example, a and A compare equal */
+/* 5-16: Add the -d (directory order) option, which makes
+ * comparisons only on letters, numbers, and blanks. Make sure it
+ * works in conjunction with -f. */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,9 +19,11 @@ int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
 void q_sort(void *lineptr[], int left, int right, int reverse,
-           int (*comp) (void *, void *));
+           int fold, int directory, int (*comp) (void *, void *));
 int numcmp(char *, char *);
 int parseargs(int argc, char *argv[], int parsedargs[]);
+void lower(char *);
+void dirformat(char *, char *);
 
 /* sort input lines */
 int main (int argc, char *argv[])
@@ -23,10 +31,14 @@ int main (int argc, char *argv[])
   int nlines;         /* number of input lines read */
   int numeric;        /* whether to sort by numeric value */
   int reverse;        /* sort in reverse order */
+  int fold;           /* fold upper and lower case chars together */
+  int dir;           /* directory order, ignore non-alphanumeric chars */
 
   int args[] = {
     0, // numeric
-    1  // reverse
+    1, // reverse
+    0, // fold
+    0  // dir
   };
   if (!parseargs(argc, argv, args)) {
     printf("Error parsing arguments\n");
@@ -35,8 +47,10 @@ int main (int argc, char *argv[])
 
   numeric = args[0];
   reverse = args[1];
+  fold = args[2];
+  dir = args[3];
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-    q_sort((void **) lineptr, 0, nlines -1, reverse,
+    q_sort((void **) lineptr, 0, nlines - 1, reverse, fold, dir,
         (int (*)(void*,void*)) (numeric ? numcmp : strcmp));
     writelines(lineptr, nlines);
     return 0;
@@ -53,6 +67,10 @@ int parseargs(int argc, char *argv[], int parsedargs[])
         parsedargs[0] = 1;
     else if (strcmp(*argv, "-r") == 0)
         parsedargs[1] = -1;
+    else if (strcmp(*argv, "-f") == 0)
+        parsedargs[2] = 1;
+    else if (strcmp(*argv, "-d") == 0)
+        parsedargs[3] = 1;
     else
       return 0;
   }
@@ -62,7 +80,7 @@ int parseargs(int argc, char *argv[], int parsedargs[])
 
 
 /* qsort: sort v[left]...v[right] into increasing order */
-void q_sort(void *v[], int left, int right, int reverse,
+void q_sort(void *v[], int left, int right, int reverse, int fold, int directory,
            int (*comp)(void *, void *))
 {
   int i, last;
@@ -72,12 +90,49 @@ void q_sort(void *v[], int left, int right, int reverse,
     return;
   swap(v, left, (left + right) / 2);
   last = left;
-  for (i = left+1; i<= right; i++)
-    if ((*comp)(v[i], v[left]) * reverse < 0)
-      swap(v, ++last, i);
+  for (i = left+1; i<= right; i++) {
+    if (fold || directory) {
+      char rcopy[strlen(v[i])], lcopy[strlen(v[left])];
+      directory ? dirformat(rcopy, v[i]) : strcpy(rcopy, v[i]);
+      directory ? dirformat(lcopy, v[left]) : strcpy(lcopy, v[left]);
+      if (fold) {
+        lower(rcopy);
+        lower(lcopy);
+      }
+      if ((*comp)(rcopy, lcopy) * reverse < 0)
+        swap(v, ++last, i);
+    } else {
+      if ((*comp)(v[i], v[left]) * reverse < 0)
+        swap(v, ++last, i);
+    }
+  }
   swap(v, left, last);
-  q_sort(v, left, last-1, reverse, comp);
-  q_sort(v, last+1, right, reverse, comp);
+  q_sort(v, left, last-1, reverse, fold, directory, comp);
+  q_sort(v, last+1, right, reverse, fold, directory, comp);
+}
+
+/* replaces str with lowercase version */
+void lower(char *str)
+{
+  for (;*str != '\0'; str++)
+    *str = (*str <= 'Z' && *str >= 'A') ? *str + 32: *str;
+}
+
+/* removes all chars that are not letters, numbers, or blanks */
+void dirformat(char *cpy, char *str)
+{
+  char *orig = str;
+  char *ocopy = cpy;
+  for (; *str != '\0'; str++) {
+    if ((*str >= 'A' && *str <= 'Z') ||
+        (*str >= 'a' && *str <= 'z') ||
+        (*str >= '0' && *str <= '9') ||
+        *str == ' ' || *str == '\t') {
+      *cpy = *str;
+      cpy++;
+    }
+  }
+  *cpy = '\0';
 }
 
 /* numcpm: compare s1 and s2 numerically */
