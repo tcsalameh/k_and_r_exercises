@@ -1,0 +1,9 @@
+complicated declarations
+
+order of ops can make declarations hard to parse
+
+e.g int *f() is a function returning a pointer to an int
+
+int (*pf)() is a pointer to a function returning an int
+
+if you really need to make a complicated declaration, can use `typedef` to do it piecemeal
