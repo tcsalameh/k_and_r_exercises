@@ -21,7 +21,7 @@ char *lineptr[MAXLINES]; /* pointers to text lines */
 int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
-void q_sort(void *lineptr[], int left, int right,
+int q_sort(void *lineptr[], int left, int right,
             int reverse, int fold, int directory,
             int fieldnum, char fieldsep,
             int (*comp) (void *, void *));
@@ -61,12 +61,15 @@ int main (int argc, char *argv[])
   dir = args[3];
   fieldnum = args[4];
   sep = args[5];
+
+  int status = 0;
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-    q_sort((void **) lineptr, 0, nlines - 1,
+    status = q_sort((void **) lineptr, 0, nlines - 1,
            reverse, fold, dir, fieldnum, sep,
            (int (*)(void*,void*)) (numeric ? numcmp : strcmp));
-    writelines(lineptr, nlines);
-    return 0;
+    if (status != 1)
+      writelines(lineptr, nlines);
+    return status;
   } else {
     printf("input too big to sort\n");
     return 1;
@@ -107,7 +110,7 @@ int parseargs(int argc, char *argv[], char parsedargs[])
 
 
 /* qsort: sort v[left]...v[right] into increasing order */
-void q_sort(void *v[], int left, int right,
+int q_sort(void *v[], int left, int right,
             int reverse, int fold, int directory,
             int fieldnum, char fieldsep,
             int (*comp)(void *, void *))
@@ -116,7 +119,7 @@ void q_sort(void *v[], int left, int right,
   void swap(void *v[], int, int);
 
   if (left >= right)
-    return;
+    return 0;
   swap(v, left, (left + right) / 2);
   last = left;
   for (i = left+1; i<= right; i++) {
@@ -136,14 +139,14 @@ void q_sort(void *v[], int left, int right,
         if (rstart >= 0)
           rcopy += rstart;
         else {
-          printf("ERROR: String '%s' has fewer than %d fields separated by '%c'.\n", v[i], fieldnum, fieldsep);
-          return;
+          printf("ERROR: String '%s' has fewer than %d fields separated by '%c'.\n", v[i], fieldnum + 1, fieldsep);
+          return 1;
         }
         if (lstart >= 0)
           lcopy += lstart;
         else {
-          printf("ERROR: String '%s' has fewer than %d fields separated by '%c'.\n", v[left], fieldnum, fieldsep);
-          return;
+          printf("ERROR: String '%s' has fewer than %d fields separated by '%c'.\n", v[left], fieldnum + 1, fieldsep);
+          return 1;
         }
       }
       if ((*comp)(rcopy, lcopy) * reverse < 0)
@@ -154,8 +157,8 @@ void q_sort(void *v[], int left, int right,
     }
   }
   swap(v, left, last);
-  q_sort(v, left, last-1, reverse, fold, directory, fieldnum, fieldsep, comp);
-  q_sort(v, last+1, right, reverse, fold, directory, fieldnum, fieldsep, comp);
+  return q_sort(v, left, last-1, reverse, fold, directory, fieldnum, fieldsep, comp);
+  return q_sort(v, last+1, right, reverse, fold, directory, fieldnum, fieldsep, comp);
 }
 
 /* return how far forward the field begins
