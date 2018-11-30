@@ -5,22 +5,14 @@
  * function argument types, qualifiers like const,
  * and so on. */
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include "getch.h"
+#include "token.h"
 
-#define MAXTOKEN 100
 #define RED      "\033[31m"
 #define CLEAR    "\033[0m"
-
-enum { NAME, PARENS, BRACKETS };
 
 void dcl(void);
 void dirdcl(void);
 
-int gettoken(void);
-int tokentype;           /* type of last token */
-char token[MAXTOKEN];    /* last token string */
 char name[MAXTOKEN];     /* identifier name */
 char datatype[MAXTOKEN]; /* data type = char, int, etc */
 char err[1000];          /* store error messages */
@@ -83,34 +75,4 @@ void dirdcl(void)
       strcat(out, token);
       strcat(out, " of");
     }
-}
-
-int gettoken(void) {
-  int c, getch(void);
-  void ungetch(int);
-  char *p = token;
-
-  while ((c = getch()) == ' ' || c == '\t')
-    ;
-  if (c == '(') {
-    if ((c = getch()) == ')') {
-      strcpy(token, "()");
-      return tokentype = PARENS;
-    } else {
-      ungetch(c);
-      return tokentype = '(';
-    }
-  } else if (c == '[') {
-     for (*p++ = c; (*p++ = getch()) != ']'; )
-       ;
-     *p = '\0';
-     return tokentype = BRACKETS;
-  } else if (isalpha(c)) {
-    for (*p++ = c; isalnum(c = getch()); )
-      *p++ = c;
-    *p = '\0';
-    ungetch(c);
-    return tokentype = NAME;
-  } else
-    return tokentype = c;
 }

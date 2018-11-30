@@ -1,5 +1,13 @@
 /* undcl: convert word descs to declaration */
-main()
+/* 5-19: Modify undcl so that it does not add
+ * redundant parentheses to declarations */
+#include <stdio.h>
+#include "token.h"
+
+char err[1000];          /* store error messages */
+char out[1000];          /* output string */
+
+int main()
 {
   int type;
   char temp[MAXTOKEN];
