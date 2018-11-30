@@ -7,8 +7,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include "getch.h"
 
 #define MAXTOKEN 100
+#define RED      "\033[31m"
+#define CLEAR    "\033[0m"
 
 enum { NAME, PARENS, BRACKETS };
 
@@ -20,18 +23,27 @@ int tokentype;           /* type of last token */
 char token[MAXTOKEN];    /* last token string */
 char name[MAXTOKEN];     /* identifier name */
 char datatype[MAXTOKEN]; /* data type = char, int, etc */
+char err[1000];          /* store error messages */
 char out[1000];          /* output string */
 
 /* convert declaration to words */
 int main()
 {
+  int lineno = 0;
+
+  strcpy(err, "syntax error");
   while (gettoken() != EOF) {  /* 1st token on line */
     strcpy(datatype, token);   /* is the datatype */
     out[0] = '\0';
     dcl();     /* parse rest of line */
-    if (tokentype != '\n')
-      printf("syntax error\n");
-    printf("%s: %s %s\n", name, out, datatype);
+    if (tokentype != '\n') {
+      printf("%serror at line %d: %s%s\n", RED, lineno, err, CLEAR);
+      while (tokentype != '\n')
+        gettoken();
+    } else
+      printf("%s: %s %s\n", name, out, datatype);
+    lineno++;
+    strcpy(err, "syntax error");
   }
   return 0;
 }
@@ -55,12 +67,13 @@ void dirdcl(void)
 
   if (tokentype == '(') {    /* ( dcl ) */
     dcl();
-    if (tokentype != ')')
-      printf("error: missing )\n");
-  } else if (tokentype() == NAME)    /* var name */
+    if (tokentype != ')') {
+      strcpy(err, "missing )");
+    }
+  } else if (tokentype == NAME)    /* var name */
       strcpy(name, token);
   else
-    printf("error: expected name or (dcl)\n");
+    strcpy(err, "expected name or (dcl)");
 
   while ((type=gettoken()) == PARENS || type == BRACKETS)
     if (type == PARENS)
@@ -88,7 +101,7 @@ int gettoken(void) {
       return tokentype = '(';
     }
   } else if (c == '[') {
-     for (*p++ = c; (*p++ - getch()) != ']'; )
+     for (*p++ = c; (*p++ = getch()) != ']'; )
        ;
      *p = '\0';
      return tokentype = BRACKETS;
@@ -100,3 +113,4 @@ int gettoken(void) {
     return tokentype = NAME;
   } else
     return tokentype = c;
+}
