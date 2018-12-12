@@ -1,0 +1,31 @@
+Structures
+
+struct point {
+  int x;
+  int y;
+};
+
+a structure declares a type
+
+e.g. struct { ... } x, y, z;
+
+declares 3 vars of the type of struct, just like int x, y, z;
+
+struct point pt;
+
+defines a structure pt of type point
+
+struct pt maxpt = { 320, 200 };
+
+how do we access structs?
+
+structure-name.member
+
+e.g. printf("%d,%d", pt.x, pt.y);
+
+nested structures:
+
+struct rect {
+  struct point pt1;
+  struct point pt2;
+}

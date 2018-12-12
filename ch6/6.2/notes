@@ -1,0 +1,11 @@
+Structures and Functions
+
+legal ops on structures:
+- copying
+- assignment
+- address lookup (&)
+- member access (.)
+
+can't be compared
+
+may be initialized by list of constant member values
