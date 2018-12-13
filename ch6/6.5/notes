@@ -1,0 +1,14 @@
+Self referential structures
+
+general problem: count all words in an input
+
+we don't know ahead of time what they will be,
+so our previous approach doesn't work
+
+we will use a binary tree
+
+node:
+  - pointer to text of word
+  - count of occurences
+  - pointer to left node
+  - pointer to right node
