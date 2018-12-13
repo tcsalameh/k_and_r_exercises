@@ -1,10 +1,17 @@
+/* Our version of getword does not properly
+ * handle underscores, string constants, or
+ * preprocessor control lines. Write a better
+ * version */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include "getch.h"
 
-#define MAXWORD 100
-#define NKEYS (sizeof keytab / sizeof keytab[0])
+#define MAXWORD     100
+#define NKEYS       (sizeof keytab / sizeof keytab[0])
+#define IN          0
+#define OUT         1
 
 struct key {
   char *word;
@@ -44,6 +51,9 @@ struct key {
   "while", 0
 };
 
+
+int comment = OUT;
+int string = OUT;
 
 int getword(char *, int);
 int binsearch(char *, struct key *, int);
@@ -94,14 +104,34 @@ int getword(char *word, int lim)
 
   while (isspace(c = getch()))
     ;
+
+  if (string != IN) {
+    if (c == '/') {
+      if ((c = getch()) == '*')
+        comment = IN;
+    } else if (c == '*' && comment == IN) {
+      if ((c = getch()) == '/') {
+        comment = OUT;
+        return c;
+      }
+    } else if (c == '"') {
+      while ((c = getch()) != '"' && c != '\'')
+        ;
+      return c;
+    }
+  }
+
+  if (comment == IN)
+    return c;
+
   if (c != EOF)
     *w++ = c;
-  if (!isalpha(c)) {
+  if (!isalpha(c) && c != '#' && c != '_') {
     *w = '\0';
     return c;
   }
   for ( ; --lim > 0; w++)
-    if (!isalnum(*w = getch())) {
+    if (!isalnum(*w = getch()) && *w != '#' && *w != '_') {
       ungetch(*w);
       break;
     }

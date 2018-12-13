@@ -9,3 +9,5 @@ legal ops on structures:
 can't be compared
 
 may be initialized by list of constant member values
+
+
