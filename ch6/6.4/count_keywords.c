@@ -1,17 +1,12 @@
-/* Our version of getword does not properly
- * handle underscores, string constants, or
- * preprocessor control lines. Write a better
- * version */
-
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include "getch.h"
 
-#define MAXWORD     100
-#define NKEYS       (sizeof keytab / sizeof keytab[0])
-#define IN          0
-#define OUT         1
+#define MAXWORD 100
+#define NKEYS   (sizeof keytab / sizeof keytab[0])
+#define IN      0
+#define OUT     1
 
 struct key {
   char *word;
@@ -51,47 +46,46 @@ struct key {
   "while", 0
 };
 
-
 int comment = OUT;
 
 int getword(char *, int);
-int binsearch(char *, struct key *, int);
+struct key *binsearch(char *, struct key *, int);
 
-/* count C keywords */
+/* count C keywords, pointer version */
 int main()
 {
-  int n;
   char word[MAXWORD];
+  struct key *p;
 
   while (getword(word, MAXWORD) != EOF)
     if (isalpha(word[0]))
-      if ((n = binsearch(word, keytab, NKEYS)) >= 0)
-        keytab[n].count++;
-  for (n = 0; n < NKEYS; n++)
-    if (keytab[n].count > 0)
-      printf("%4d %s\n",
-          keytab[n].count, keytab[n].word);
+      if ((p=binsearch(word, keytab, NKEYS)) != NULL)
+        p->count++;
+  for (p = keytab; p < keytab + NKEYS; p++)
+    if (p->count > 0)
+      printf("%4d %s\n", p->count, p->word);
   return 0;
 }
 
 /* binsearch: find word in tab[0]..tab[n-1] */
-int binsearch(char *word, struct key tab[], int n)
+struct key *binsearch(char *word, struct key *tab, int n)
 {
   int cond;
-  int low, high, mid;
+  struct key *low = &tab[0];
+  struct key *high = &tab[n];
+  struct key *mid;
 
-  low = 0;
-  high = n - 1;
-  while (low <= high) {
-    mid = (low+high) / 2;
-    if ((cond = strcmp(word, tab[mid].word)) < 0)
-      high = mid - 1;
+  while (low < high) {
+    mid = low + (high-low) / 2;
+    if ((cond = strcmp(word, mid->word)) < 0)
+      high = mid;
     else if (cond > 0)
       low = mid + 1;
     else
       return mid;
   }
-  return -1;
+
+  return NULL;
 }
 
 /* getword: get next word or character from input */
